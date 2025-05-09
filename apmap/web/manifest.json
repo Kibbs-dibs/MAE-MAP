@@ -1,6 +1,6 @@
 {
-    "name": "apmap",
-    "short_name": "apmap",
+    "name": "apmap_app",
+    "short_name": "apmap_app",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

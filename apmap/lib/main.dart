@@ -1,23 +1,20 @@
 import 'package:flutter/material.dart';
-import 'screens/first_screen.dart';
-import 'screens/register_screen.dart';
+import 'package:apmap_app/screens/first_screen.dart';
 
-void main() => runApp(APMapApp());
+void main() {
+  runApp(const MyApp());
+}
 
-class APMapApp extends StatelessWidget {
-  const APMapApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'APMAP',
-      theme: ThemeData(primarySwatch: Colors.blue),
+      title: 'APMap',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/',
-      routes: {
-        '/': (context) => FirstScreen(),
-        '/register': (context) => RegisterScreen(),
-      },
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const FirstScreen(),
     );
   }
 }
