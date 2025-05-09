@@ -5,6 +5,8 @@ import 'screens/register_screen.dart';
 void main() => runApp(APMapApp());
 
 class APMapApp extends StatelessWidget {
+  const APMapApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
