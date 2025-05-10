@@ -1,7 +1,6 @@
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
-import 'dart:ui' as ui;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:camera/camera.dart';
 
 class CameraAccessScreen extends StatefulWidget {
   const CameraAccessScreen({super.key});
@@ -11,39 +10,46 @@ class CameraAccessScreen extends StatefulWidget {
 }
 
 class _CameraAccessScreenState extends State<CameraAccessScreen> {
-  final String _viewId = 'webcam-view';
+  CameraController? _controller;
+  List<CameraDescription>? _cameras;
+  bool _isCameraInitialized = false;
 
   @override
   void initState() {
     super.initState();
+    if (!kIsWeb) {
+      initializeCamera();
+    }
+  }
 
-    // Register web view for live webcam
-    // ignore: undefined_prefixed_name
-    ui.platformViewRegistry.registerViewFactory(_viewId, (int viewId) {
-      final video =
-          html.VideoElement()
-            ..width = 640
-            ..height = 480
-            ..autoplay = true;
+  Future<void> initializeCamera() async {
+    _cameras = await availableCameras();
+    if (_cameras != null && _cameras!.isNotEmpty) {
+      _controller = CameraController(_cameras![0], ResolutionPreset.medium);
+      await _controller!.initialize();
+      setState(() {
+        _isCameraInitialized = true;
+      });
+    }
+  }
 
-      html.window.navigator.mediaDevices
-          ?.getUserMedia({'video': true})
-          .then((stream) {
-            video.srcObject = stream;
-          })
-          .catchError((e) {
-            print("Camera access error: $e");
-          });
-
-      return video;
-    });
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Webcam Live Preview')),
-      body: Center(child: HtmlElementView(viewType: _viewId)),
+      appBar: AppBar(title: const Text('Camera Preview')),
+      body: Center(
+        child: kIsWeb
+            ? const Text('Camera not supported in web version.')
+            : (_isCameraInitialized && _controller != null)
+                ? CameraPreview(_controller!)
+                : const CircularProgressIndicator(),
+      ),
     );
   }
 }

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/user_model.dart';
 import 'first_screen.dart';
-import 'camera_access_screen.dart';
+import 'dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -20,24 +21,24 @@ class _LoginScreenState extends State<LoginScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? savedEmail = prefs.getString('email');
     String? savedPassword = prefs.getString('password');
+    String? savedRole = prefs.getString('role');
 
     if (emailController.text == savedEmail &&
         passwordController.text == savedPassword) {
-      setState(() {
-        loginResult = '✅ Login Successful!';
-      });
+      final role = _getRoleFromString(savedRole);
+      final user = UserModel(email: savedEmail!, role: role);
+
+      setState(() => loginResult = '✅ Login Successful!');
 
       await Future.delayed(const Duration(seconds: 1));
       if (!mounted) return;
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const CameraAccessScreen()),
+        MaterialPageRoute(builder: (_) => DashboardScreen(user: user)),
       );
     } else {
-      setState(() {
-        loginResult = '❌ Invalid email or password.';
-      });
+      setState(() => loginResult = '❌ Invalid email or password.');
     }
   }
 
@@ -46,26 +47,34 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final GoogleSignInAccount? account = await googleSignIn.signIn();
       if (account != null) {
-        setState(() {
-          loginResult = '✅ Google Sign-in Successful: ${account.email}';
-        });
+        // Default role for Google users: student
+        final user = UserModel(email: account.email, role: UserRole.student);
+
+        setState(() => loginResult = '✅ Google Sign-in Successful: ${account.email}');
 
         await Future.delayed(const Duration(seconds: 1));
         if (!mounted) return;
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const CameraAccessScreen()),
+          MaterialPageRoute(builder: (_) => DashboardScreen(user: user)),
         );
       } else {
-        setState(() {
-          loginResult = '❌ Google Sign-in canceled.';
-        });
+        setState(() => loginResult = '❌ Google Sign-in canceled.');
       }
     } catch (e) {
-      setState(() {
-        loginResult = '❌ Google Sign-in failed: $e';
-      });
+      setState(() => loginResult = '❌ Google Sign-in failed: $e');
+    }
+  }
+
+  UserRole _getRoleFromString(String? roleStr) {
+    switch (roleStr) {
+      case 'teacher':
+        return UserRole.teacher;
+      case 'admin':
+        return UserRole.admin;
+      default:
+        return UserRole.student;
     }
   }
 
@@ -92,27 +101,13 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             const Text(
               'LOG IN',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue,
-              ),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue),
             ),
             const SizedBox(height: 20),
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
-            ),
-            TextField(
-              controller: passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: 'Password'),
-            ),
+            TextField(controller: emailController, decoration: const InputDecoration(labelText: 'Email')),
+            TextField(controller: passwordController, obscureText: true, decoration: const InputDecoration(labelText: 'Password')),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: attemptLogin,
-              child: const Text('LOG IN'),
-            ),
+            ElevatedButton(onPressed: attemptLogin, child: const Text('LOG IN')),
             const SizedBox(height: 20),
             ElevatedButton.icon(
               icon: const Icon(Icons.g_mobiledata),
