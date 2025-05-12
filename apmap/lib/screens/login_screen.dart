@@ -3,7 +3,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
 import 'first_screen.dart';
-import 'dashboard_screen.dart';
+import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -35,7 +35,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => DashboardScreen(user: user)),
+        MaterialPageRoute(
+          builder: (_) => HomeScreen(user: user),
+        ), // ✅ Redirect to HomeScreen
       );
     } else {
       setState(() => loginResult = '❌ Invalid email or password.');
@@ -47,17 +49,23 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final GoogleSignInAccount? account = await googleSignIn.signIn();
       if (account != null) {
-        // Default role for Google users: student
-        final user = UserModel(email: account.email, role: UserRole.student);
+        final user = UserModel(
+          email: account.email,
+          role: UserRole.student,
+        ); // Default as student
 
-        setState(() => loginResult = '✅ Google Sign-in Successful: ${account.email}');
+        setState(
+          () => loginResult = '✅ Google Sign-in Successful: ${account.email}',
+        );
 
         await Future.delayed(const Duration(seconds: 1));
         if (!mounted) return;
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => DashboardScreen(user: user)),
+          MaterialPageRoute(
+            builder: (_) => HomeScreen(user: user),
+          ), // ✅ Redirect to HomeScreen
         );
       } else {
         setState(() => loginResult = '❌ Google Sign-in canceled.');
@@ -101,13 +109,27 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             const Text(
               'LOG IN',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue),
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue,
+              ),
             ),
             const SizedBox(height: 20),
-            TextField(controller: emailController, decoration: const InputDecoration(labelText: 'Email')),
-            TextField(controller: passwordController, obscureText: true, decoration: const InputDecoration(labelText: 'Password')),
+            TextField(
+              controller: emailController,
+              decoration: const InputDecoration(labelText: 'Email'),
+            ),
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              decoration: const InputDecoration(labelText: 'Password'),
+            ),
             const SizedBox(height: 20),
-            ElevatedButton(onPressed: attemptLogin, child: const Text('LOG IN')),
+            ElevatedButton(
+              onPressed: attemptLogin,
+              child: const Text('LOG IN'),
+            ),
             const SizedBox(height: 20),
             ElevatedButton.icon(
               icon: const Icon(Icons.g_mobiledata),

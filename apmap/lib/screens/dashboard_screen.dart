@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
 import '../screens/camera_access_screen.dart';
+import '../screens/schedule_screen.dart';
+import '../screens/routing_screen.dart';
 import '../widgets/feature_tile.dart';
 
 class DashboardScreen extends StatelessWidget {
@@ -19,16 +21,37 @@ class DashboardScreen extends StatelessWidget {
           FeatureTile(
             title: 'AR Camera',
             icon: Icons.camera,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const CameraAccessScreen()),
-            ),
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const CameraAccessScreen()),
+                ),
           ),
           FeatureTile(
             title: 'Routing',
             icon: Icons.map,
-            enabled: true,
-            onTap: () {}, // Implement routing logic
+            enabled:
+                role == UserRole.student ||
+                role == UserRole.teacher ||
+                role == UserRole.admin,
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const RoutingScreen()),
+                ),
+          ),
+          FeatureTile(
+            title: 'Schedule',
+            icon: Icons.schedule,
+            enabled:
+                role == UserRole.student ||
+                role == UserRole.teacher ||
+                role == UserRole.admin,
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ScheduleScreen()),
+                ),
           ),
           FeatureTile(
             title: 'Place Temporary AR Comments',
